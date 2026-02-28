@@ -10,7 +10,6 @@
         <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
         <AllowedReferenceRelatedFileExtensions></AllowedReferenceRelatedFileExtensions>
         <Configurations>Release_MONO;Release_IL2CPP;Release_IL2CPP_CoreCLR</Configurations>
-        <TargetFramework>net461</TargetFramework>
     </PropertyGroup>
 
     <!-- CONFIGURATIONS -->

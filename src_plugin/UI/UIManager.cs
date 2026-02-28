@@ -17,18 +17,17 @@ using UniverseLib.Utility;
 using HarmonyLib;
 using UniverseLib.UI.Panels;
 using System.IO;
+using BepInEx.Unity.Mono;
 #if CPP
 using BepInEx.Unity.IL2CPP;
 #endif
 
 namespace ConfigManager.UI
 {
-    internal class ConfigFileInfo
+    public class ConfigFileInfo
     {
         public ConfigFile RefConfigFile;
         public BepInPlugin Meta;
-
-        private List<EntryInfo> entries = new();
 
         internal bool isCompletelyHidden;
         internal ButtonRef listButton;
@@ -37,7 +36,7 @@ namespace ConfigManager.UI
         internal IEnumerable<GameObject> HiddenEntries
             => Entries.Where(it => it.IsHidden).Select(it => it.content);
 
-        internal List<EntryInfo> Entries { get => entries; set => entries = value; }
+        internal List<EntryInfo> Entries { get; set; } = new();
     }
 
     internal class EntryInfo
@@ -54,9 +53,10 @@ namespace ConfigManager.UI
     {
         public static UIManager Instance { get; internal set; }
 
-        static readonly Dictionary<string, ConfigFileInfo> ConfigFiles = new();
+        public static readonly Dictionary<string, ConfigFileInfo> ConfigFiles = new();
         static readonly Dictionary<ConfigEntryBase, CachedConfigEntry> configsToCached = new();
         static ConfigFileInfo currentCategory;
+        private static string firstActiveCategory;
 
         static readonly HashSet<CachedConfigEntry> editingEntries = new();
         internal static ButtonRef saveButton;
@@ -68,6 +68,11 @@ namespace ConfigManager.UI
         public override Vector2 DefaultAnchorMin => new(0.2f, 0.02f);
         public override Vector2 DefaultAnchorMax => new(0.8f, 0.98f);
 
+        public static string TitleBarTextTemplate = $"<b><color=#8b736b>{I18n.T("PluginName")}</color></b>";
+        public static string ToggleKeyLabelTextTemplate = I18n.T("ToggleHint");
+
+        
+
         public static bool ShowMenu
         {
             get => uiBase != null && uiBase.Enabled;
@@ -78,6 +83,11 @@ namespace ConfigManager.UI
 
                 UniversalUI.SetUIActive(ConfigManager.GUID, value);
                 Instance.SetActive(value);
+                if (value && !string.IsNullOrEmpty(firstActiveCategory))
+                {
+                    SetActiveCategory(firstActiveCategory);
+                    firstActiveCategory = "";
+                }
             }
         }
 
@@ -106,7 +116,7 @@ namespace ConfigManager.UI
             // Force refresh of anchors etc
             Canvas.ForceUpdateCanvases();
 
-            ShowMenu = false;
+            ShowMenu = ConfigManager.Auto_Show_Main_Menu.Value;
 
             SetupCategories();
         }
@@ -159,12 +169,18 @@ namespace ConfigManager.UI
             {
                 string GUID = meta?.GUID ?? Path.GetFileNameWithoutExtension(configFile.ConfigFilePath);
                 string name = meta?.Name ?? GUID;
+                string version = meta?.Version.ToString() ?? "1.0.0";
+
+                if (ConfigFiles.ContainsKey(GUID))
+                    return;
 
 #if CPP
                 BasePlugin basePlugin = plugin as BasePlugin;
 #else
                 BaseUnityPlugin basePlugin = plugin as BaseUnityPlugin;
 #endif
+                if (name is "BepInEx" or "UnityExplorer")
+                    forceAdvanced = true;
 
                 if (!forceAdvanced && basePlugin != null)
                 {
@@ -185,7 +201,7 @@ namespace ConfigManager.UI
 
                 // List button
 
-                ButtonRef btn = UIFactory.CreateButton(CategoryListContent, "BUTTON_" + GUID, name);
+                ButtonRef btn = UIFactory.CreateButton(CategoryListContent, "BUTTON_" + GUID, $"{name} <i><color=#3e3a44>v{version}</color></i>");
                 btn.OnClick += () => { SetActiveCategory(GUID); };
                 UIFactory.SetLayoutElement(btn.Component.gameObject, flexibleWidth: 9999, minHeight: 30, flexibleHeight: 0);
 
@@ -231,35 +247,36 @@ namespace ConfigManager.UI
                     foreach (ConfigEntryBase configEntry in ctg.Value)
                     {
                         CachedConfigEntry cache = new(configEntry, content);
-                        cache.Enable();
 
-                        configsToCached.Add(configEntry, cache);
+                        cache.IsAdvanced = forceAdvanced;
 
-                        GameObject obj = cache.UIroot;
-
-                        bool advanced = forceAdvanced;
-
-                        if (!advanced)
+                        if (!cache.IsAdvanced)
                         {
                             object[] tags = configEntry.Description?.Tags;
                             if (tags != null && tags.Any())
                             {
                                 if (tags.Any(it => it is string s && s == "Advanced"))
                                 {
-                                    advanced = true;
+                                    cache.IsAdvanced = true;
                                 }
                                 else if (tags.FirstOrDefault(it => it.GetType().Name == "ConfigurationManagerAttributes") is object attributes)
                                 {
-                                    advanced = (bool?)attributes.GetType().GetField("IsAdvanced")?.GetValue(attributes) == true;
+                                    cache.IsAdvanced = (bool?)attributes.GetType().GetField("IsAdvanced")?.GetValue(attributes) == true;
                                 }
                             }
                         }
+
+                        cache.Enable();
+
+                        configsToCached.Add(configEntry, cache);
+
+                        GameObject obj = cache.UIroot;
 
                         info.Entries.Add(new EntryInfo(cache)
                         {
                             RefEntry = configEntry,
                             content = obj,
-                            IsHidden = advanced
+                            IsHidden = cache.IsAdvanced
                         });
                     }
                 }
@@ -276,6 +293,18 @@ namespace ConfigManager.UI
                 info.contentObj = content;
 
                 ConfigFiles.Add(GUID, info);
+
+                if (currentCategory == null
+                    && string.IsNullOrEmpty(firstActiveCategory)
+                    && name != ConfigManager.NAME
+                    && name != "BepInEx"
+                    && name != "UnityExplorer")
+                {
+                    if (ShowMenu)
+                        SetActiveCategory(GUID);
+                    else
+                        firstActiveCategory = GUID;
+                }
             }
             catch (Exception ex)
             {
@@ -415,6 +444,12 @@ namespace ConfigManager.UI
             currentCategory = null;
         }
 
+        public override void SetDefaultSizeAndPosition()
+        {
+            base.SetDefaultSizeAndPosition();
+            this.Rect.localPosition = new Vector3(-this.Rect.rect.width / 2, this.Rect.rect.height / 2, 0);
+        }
+
         protected override void ConstructPanelContent()
         {
             UIFactory.SetLayoutGroup<VerticalLayoutGroup>(ContentRoot, true, false, true, true);
@@ -435,12 +470,27 @@ namespace ConfigManager.UI
             ShowMenu = false;
         }
 
-        private void ConstructTitleBar()
+        public void SetTitleBarText(string title)
         {
             Text titleText = TitleBar.transform.GetChild(0).GetComponent<Text>();
-            titleText.text = $"<b><color=#8b736b>BepInExConfigManager</color></b> <i><color=#ffe690>v{ConfigManager.VERSION}</color></i>";
+            titleText.text = title;
+        }
+
+        public void SetToggleKeyLabelText(string title)
+        {
+            Text titleText = TitleBar.transform.GetChild(1).GetComponent<Text>();
+            titleText.text = title;
+        }
+
+        private void ConstructTitleBar()
+        {
+            SetTitleBarText(TitleBarTextTemplate);
 
             Button closeButton = TitleBar.GetComponentInChildren<Button>();
+            var closeHolder = closeButton.transform.parent.gameObject;
+            var layout = closeHolder.GetComponent<LayoutElement>();
+            layout.flexibleWidth = 0f;
+
             RuntimeHelper.SetColorBlock(closeButton, new(1, 0.2f, 0.2f), new(1, 0.6f, 0.6f), new(0.3f, 0.1f, 0.1f));
 
             Text hideText = closeButton.GetComponentInChildren<Text>();
@@ -448,11 +498,16 @@ namespace ConfigManager.UI
             hideText.resizeTextForBestFit = true;
             hideText.resizeTextMinSize = 8;
             hideText.resizeTextMaxSize = 14;
+
+            Text labelText = UIFactory.CreateLabel(TitleBar, "ToggleKeyLabel", string.Format(ToggleKeyLabelTextTemplate,
+                ConfigManager.Main_Menu_Toggle.Value), TextAnchor.MiddleRight);
+            labelText.transform.SetSiblingIndex(1);
+            UIFactory.SetLayoutElement(labelText.gameObject, minWidth: 120, minHeight: 25, flexibleHeight: 0, flexibleWidth: 9999);
         }
 
         private void ConstructSaveButton()
         {
-            saveButton = UIFactory.CreateButton(ContentRoot, "SaveButton", "Save Preferences");
+            saveButton = UIFactory.CreateButton(ContentRoot, "SaveButton", I18n.T("SavePreferences"));
             saveButton.OnClick += SavePreferences;
             UIFactory.SetLayoutElement(saveButton.Component.gameObject, minHeight: 35, flexibleHeight: 0, flexibleWidth: 9999);
             RuntimeHelper.SetColorBlock(saveButton.Component, new Color(0.1f, 0.3f, 0.1f),
@@ -474,10 +529,10 @@ namespace ConfigManager.UI
             {
                 SetHiddenConfigVisibility(val);
             });
-            toggleText.text = "Show Advanced Settings";
+            toggleText.text = I18n.T("ShowAdvancedSettings");
             UIFactory.SetLayoutElement(toggleObj, minWidth: 280, minHeight: 25, flexibleHeight: 0, flexibleWidth: 0);
 
-            InputFieldRef inputField = UIFactory.CreateInputField(toolbarGroup, "FilterInput", "Search...");
+            InputFieldRef inputField = UIFactory.CreateInputField(toolbarGroup, "FilterInput", I18n.T("Search"));
             UIFactory.SetLayoutElement(inputField.Component.gameObject, flexibleWidth: 9999, minHeight: 25);
             inputField.OnValueChanged += FilterConfigs;
         }

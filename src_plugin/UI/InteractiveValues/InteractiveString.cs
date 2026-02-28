@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.UI;
@@ -85,6 +86,23 @@ namespace ConfigManager.UI.InteractiveValues
                 SetValueFromInput();
             };
 
+
+            // Copy button
+
+            ButtonRef copyButton = UIFactory.CreateButton(hiddenObj, "CopyButton", I18n.T("Copy"), new Color(0.3f, 0.3f, 0.3f));
+            copyButton.OnClick += () =>
+            {
+                var str = Value as string ?? "";
+                WindowsClipboard.SetText(str);
+                copyButton.ButtonText.text = $"<color=#03c03c>{I18n.T("Copied")}</color>";
+
+                new Thread(() =>
+                {
+                    Thread.Sleep(500);
+                    copyButton.ButtonText.text = I18n.T("Copy");
+                }).Start();
+            };
+            UIFactory.SetLayoutElement(copyButton.Component.gameObject, minWidth: 80, minHeight: 22, flexibleWidth: 0);
             RefreshUIForValue();
         }
     }

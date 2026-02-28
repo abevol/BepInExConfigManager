@@ -16,6 +16,7 @@ namespace ConfigManager.UI
     public class CachedConfigEntry
     {
         public ConfigEntryBase RefConfig { get; }
+        public bool IsAdvanced;
 
         public object EditedValue { get; internal set; }
         public InteractiveValue IValue;
@@ -175,12 +176,15 @@ namespace ConfigManager.UI
 
             mainLabel = UIFactory.CreateLabel(horiGroup, "ConfigLabel", this.RefConfig.Definition.Key, TextAnchor.MiddleLeft, 
                 new Color(0.9f, 0.9f, 0.7f));
-            mainLabel.text += $" <i>({SignatureHighlighter.Parse(RefConfig.SettingType, false)})</i>";
+            if (ConfigManager.Display_Config_Type.Value)
+                mainLabel.text += $" <i>({SignatureHighlighter.Parse(RefConfig.SettingType, false)})</i>";
+            if (IsAdvanced)
+                mainLabel.text += $" <i>(<color=#da2c43>高级</color>)</i>";
             UIFactory.SetLayoutElement(mainLabel.gameObject, minWidth: 200, minHeight: 22, flexibleWidth: 9999, flexibleHeight: 0);
 
             // Undo button
 
-            UniverseLib.UI.Models.ButtonRef undoButton = UIFactory.CreateButton(horiGroup, "UndoButton", "Undo", new Color(0.3f, 0.3f, 0.3f));
+            UniverseLib.UI.Models.ButtonRef undoButton = UIFactory.CreateButton(horiGroup, "UndoButton", I18n.T("Undo"), new Color(0.3f, 0.3f, 0.3f));
             undoButton.OnClick += UndoEdits;
             this.undoButton = undoButton.Component.gameObject;
             this.undoButton.SetActive(false);
@@ -188,7 +192,7 @@ namespace ConfigManager.UI
 
             // Default button
 
-            UniverseLib.UI.Models.ButtonRef defaultButton = UIFactory.CreateButton(horiGroup, "DefaultButton", "Default", new Color(0.3f, 0.3f, 0.3f));
+            UniverseLib.UI.Models.ButtonRef defaultButton = UIFactory.CreateButton(horiGroup, "DefaultButton", I18n.T("Default"), new Color(0.3f, 0.3f, 0.3f));
             defaultButton.OnClick += RevertToDefault;
             UIFactory.SetLayoutElement(defaultButton.Component.gameObject, minWidth: 80, minHeight: 22, flexibleWidth: 0);
 

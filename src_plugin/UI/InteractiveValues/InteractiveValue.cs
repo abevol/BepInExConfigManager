@@ -143,12 +143,12 @@ namespace ConfigManager.UI.InteractiveValues
             {
                 this.subContentParent.SetActive(true);
                 this.subContentParent.transform.SetAsLastSibling();
-                subExpandBtn.ButtonText.text = "▼ Click to hide";
+                subExpandBtn.ButtonText.text = I18n.T("ClickToHide");
             }
             else
             {
                 this.subContentParent.SetActive(false);
-                subExpandBtn.ButtonText.text = "▲ Expand to edit";
+                subExpandBtn.ButtonText.text = I18n.T("ExpandToEdit");
             }
 
             OnToggleSubcontent(subContentParent.activeSelf);
@@ -177,7 +177,7 @@ namespace ConfigManager.UI.InteractiveValues
             // subcontent expand button
             if (HasSubContent)
             {
-                subExpandBtn = UIFactory.CreateButton(mainContent, "ExpandSubcontentButton", "▲ Expand to edit", new Color(0.3f, 0.3f, 0.3f));
+                subExpandBtn = UIFactory.CreateButton(mainContent, "ExpandSubcontentButton", I18n.T("ExpandToEdit"), new Color(0.3f, 0.3f, 0.3f));
                 subExpandBtn.OnClick += ToggleSubcontent;
                 UIFactory.SetLayoutElement(subExpandBtn.Component.gameObject, minHeight: 25, minWidth: 120, flexibleWidth: 0, flexibleHeight: 0);
             }

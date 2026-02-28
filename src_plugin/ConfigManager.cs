@@ -44,7 +44,9 @@ namespace ConfigManager
         internal const string CTG_ID = "BepInExConfigManager";
         internal static string CTG = "Settings";
         internal static ConfigEntry<KeyCode> Main_Menu_Toggle;
+        internal static ConfigEntry<bool> Auto_Show_Main_Menu;
         internal static ConfigEntry<bool> Auto_Save_Configs;
+        internal static ConfigEntry<bool> Display_Config_Type;
         internal static ConfigEntry<float> Startup_Delay;
         internal static ConfigEntry<bool> Disable_EventSystem_Override;
 
@@ -122,11 +124,20 @@ namespace ConfigManager
             Main_Menu_Toggle = Instance.Config.Bind(new ConfigDefinition(CTG, "Main Menu Toggle"),
                 KeyCode.F5,
                 new ConfigDescription("The toggle for the Config Manager menu"));
+            Main_Menu_Toggle.SettingChanged += Main_Menu_Toggle_SettingChanged;
+
+            Auto_Show_Main_Menu = Instance.Config.Bind(new ConfigDefinition(CTG, "Auto-show Main Menu"),
+                true, new ConfigDescription("Automatically show the main menu after the game starts."));
 
             Auto_Save_Configs = Instance.Config.Bind(new ConfigDefinition(CTG, "Auto-save settings"),
-                false,
-                new ConfigDescription("Automatically save settings after changing them? This will mean the undo feature will be unavailable."));
+                true,
+                new ConfigDescription("Automatically save settings after changing them? This will mean the undo feature will be unavailable.", null, "Advanced"));
             Auto_Save_Configs.SettingChanged += Auto_Save_Configs_SettingChanged;
+
+            Display_Config_Type = Instance.Config.Bind(new ConfigDefinition(CTG, "Display Config Type"),
+                false,
+                new ConfigDescription("Show configuration type in the setting title bar.", null, "Advanced"));
+            Display_Config_Type.SettingChanged += Display_Config_Type_SettingChanged;
 
             //UI_Scale = ConfigManagerPlugin.Instance.Config.Bind(new ConfigDefinition(CTG, "UI Scale"),
             //    1f,
@@ -135,13 +146,34 @@ namespace ConfigManager
             //UI_Scale.SettingChanged += UiScale_SettingChanged;
 
             Startup_Delay = Instance.Config.Bind(CTG, "Startup Delay", 1f,
-                "Delays the core startup process. Adjust it if you experience issues.");
+                new ConfigDescription("Delays the core startup process. Adjust it if you experience issues.", null, "Advanced"));
 
             Disable_EventSystem_Override = Instance.Config.Bind(CTG, "Disable EventSystem Override", false,
-                "Disables the overriding of the EventSystem from the game, if you experience issues with UI Input.");
+                new ConfigDescription("Disables the overriding of the EventSystem from the game, if you experience issues with UI Input.", null, "Advanced"));
             Disable_EventSystem_Override.SettingChanged += Disable_EventSystem_Override_SettingChanged;
 
             // InitTest();
+        }
+
+        private static void Main_Menu_Toggle_SettingChanged(object sender, EventArgs e)
+        {
+            UIManager.Instance?.SetToggleKeyLabelText(string.Format(I18n.T("ToggleHint"), Main_Menu_Toggle.Value));
+        }
+
+        private static void Display_Config_Type_SettingChanged(object sender, EventArgs e)
+        {
+            foreach (var pair in UIManager.ConfigFiles)
+            {
+                foreach (var valueEntry in pair.Value.Entries)
+                {
+                    var config = valueEntry.Cached;
+                    config.mainLabel.text = config.RefConfig.Definition.Key;
+                    if (Display_Config_Type.Value)
+                        config.mainLabel.text += $" <i>({UniverseLib.Utility.SignatureHighlighter.Parse(config.RefConfig.SettingType, false)})</i>";
+                    if (config.IsAdvanced)
+                        config.mainLabel.text += $" <i>(<color=#da2c43>{I18n.T("Advanced")}</color>)</i>";
+                }
+            }
         }
 
         private static void Disable_EventSystem_Override_SettingChanged(object sender, EventArgs e)
