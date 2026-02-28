@@ -134,6 +134,7 @@ namespace ConfigManager.UI
 
             if (ShowMenu == false && ConfigManager.Auto_Show_Main_Menu.Value)
                 ShowMenu = true;
+        }
 
         internal static void SetupCategories()
         {
@@ -253,14 +254,26 @@ namespace ConfigManager.UI
                 }
 
                 // Create actual entry editors
+                info.navButtons = new Dictionary<string, ButtonRef>();
+                info.navTitles = new Dictionary<string, GameObject>();
                 foreach (KeyValuePair<string, List<ConfigEntryBase>> ctg in dict)
                 {
                     if (!string.IsNullOrEmpty(ctg.Key))
                     {
+                        // Config nav button
+                        ButtonRef navButton = UIFactory.CreateButton(navbarGroup, "NAV_BUTTON_" + ctg.Key, ctg.Key);
+                        navButton.OnClick += () => { OnNavButtonClicked(info, ctg.Key); };
+                        UIFactory.SetLayoutElement(navButton.Component.gameObject, minWidth: 100, flexibleWidth: 0, minHeight: 30);
+                        RuntimeHelper.SetColorBlock(navButton.Component, normalInactiveColor, new Color(0.6f, 0.55f, 0.45f),
+                            new Color(0.20f, 0.18f, 0.15f));
+                        info.navButtons.Add(ctg.Key, navButton);
+
+                        // Config block title
                         GameObject bg = UIFactory.CreateHorizontalGroup(content, "TitleBG", true, true, true, true, 0, default,
                             new Color(0.07f, 0.07f, 0.07f));
                         Text title = UIFactory.CreateLabel(bg, $"Title_{ctg.Key}", ctg.Key, TextAnchor.MiddleCenter, default, true, 17);
                         UIFactory.SetLayoutElement(title.gameObject, minHeight: 30, minWidth: 200, flexibleWidth: 9999);
+                        info.navTitles.Add(ctg.Key, bg);
                     }
 
                     foreach (ConfigEntryBase configEntry in ctg.Value)
@@ -654,5 +667,6 @@ namespace ConfigManager.UI
             ConfigEditorContent = editorContent;
             ConfigEditorScrollRect = editor.GetComponent<ScrollRect>();
             InitScrollRectListeners();
+        }
     }
 }

@@ -86,7 +86,7 @@ namespace ConfigManager.UI.InteractiveValues
                     valueInput.Text = (string)Value;
                     return;
                 }
-            {
+
                 hiddenText.text = val ?? "";
                 LayoutRebuilder.ForceRebuildLayoutImmediate(Owner.ContentRect);
                 SetValueFromInput();
