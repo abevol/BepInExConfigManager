@@ -6,7 +6,6 @@ using BepInEx.Configuration;
 using System.Linq;
 using HarmonyLib;
 
-#if CPP
 using BepInEx.Preloader.Core.Patching;
 
 [PatcherPluginInfo(Patcher.GUID, "BepInExConfigManager.Patcher", "1.3.0")]
@@ -17,7 +16,6 @@ class ConfigManagerPatcher : BasePatcher
         Patcher.Init();
     }
 }
-#endif
 
 public static class Patcher
 {

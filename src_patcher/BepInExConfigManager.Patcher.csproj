@@ -9,7 +9,7 @@
       <Configurations>Release_MONO;Release_IL2CPP;Release_IL2CPP_CoreCLR</Configurations>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release_Mono'">
-    <TargetFramework>net35</TargetFramework>      
+    <TargetFramework>net461</TargetFramework>      
     <OutputPath>..\Release\BepInExConfigManager.Mono\patchers\</OutputPath>
     <DefineConstants>MONO</DefineConstants>
     <AssemblyName>BepInExConfigManager.Mono.Patcher</AssemblyName>
@@ -27,14 +27,18 @@
     <AssemblyName>BepInExConfigManager.Il2Cpp.Patcher</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="HarmonyX" Version="2.5.2" />
+    <PackageReference Include="HarmonyX" Version="2.10.1" />
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)' == 'Release_Mono'">
-      <PackageReference Include="Mono.Cecil" Version="0.10.4" />
-    <Reference Include="BepInEx">
-      <HintPath>..\lib\BepInEx.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
+      <PackageReference Include="Mono.Cecil" Version="0.11.4" />
+      <Reference Include="BepInEx.Core">
+        <HintPath>..\lib\BepInEx.Core.dll</HintPath>
+        <Private>False</Private>
+      </Reference>
+      <Reference Include="BepInEx.Preloader.Core">
+        <HintPath>..\lib\BepInEx.Preloader.Core.dll</HintPath>
+        <Private>False</Private>
+      </Reference>
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)' != 'Release_Mono'">
       <PackageReference Include="Mono.Cecil" Version="0.11.4" />

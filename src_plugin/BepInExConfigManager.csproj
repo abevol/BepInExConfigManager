@@ -10,6 +10,7 @@
         <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
         <AllowedReferenceRelatedFileExtensions></AllowedReferenceRelatedFileExtensions>
         <Configurations>Release_MONO;Release_IL2CPP;Release_IL2CPP_CoreCLR</Configurations>
+        <TargetFramework>net461</TargetFramework>
     </PropertyGroup>
 
     <!-- CONFIGURATIONS -->
@@ -26,7 +27,7 @@
         <AssemblyName>BepInExConfigManager.Il2Cpp.CoreCLR</AssemblyName>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Configuration)' == 'Release_Mono'">
-        <TargetFramework>net35</TargetFramework>
+        <TargetFramework>net461</TargetFramework>
         <OutputPath>..\Release\BepInExConfigManager.Mono\plugins\</OutputPath>
         <DefineConstants>MONO</DefineConstants>
         <AssemblyName>BepInExConfigManager.Mono</AssemblyName>
@@ -34,12 +35,10 @@
 
     <!-- NUGET -->
     <ItemGroup>
-        <PackageReference Include="HarmonyX" Version="2.5.2" IncludeAssets="Compile" />
-    </ItemGroup>
-    <!-- mono -->
-    <ItemGroup Condition="'$(Configuration)'=='Release_Mono'">
+        <PackageReference Include="HarmonyX" Version="2.10.1" IncludeAssets="Compile" />
         <PackageReference Include="UniverseLib.Mono" Version="1.5.1" />
     </ItemGroup>
+    <!-- mono -->
     <!-- il2cpp Interop nuget -->
     <ItemGroup Condition="'$(Configuration)'=='Release_IL2CPP_CoreCLR'">
         <PackageReference Include="Il2CppInterop.Common" Version="1.4.5" IncludeAssets="Compile" />
@@ -56,16 +55,32 @@
     <!-- ASSEMBLY REFS -->
     <!-- mono -->
     <ItemGroup Condition="'$(Configuration)' == 'Release_Mono'">
-        <Reference Include="BepInEx">
-            <HintPath>..\lib\BepInEx.dll</HintPath>
+        <Reference Include="BepInEx.Core">
+            <HintPath>..\lib\BepInEx.Core.dll</HintPath>
+            <Private>False</Private>
+        </Reference>
+        <Reference Include="BepInEx.Unity.Mono">
+            <HintPath>..\lib\BepInEx.Unity.Mono.dll</HintPath>
             <Private>False</Private>
         </Reference>
         <Reference Include="UnityEngine">
             <HintPath>..\lib\mono\UnityEngine.dll</HintPath>
             <Private>False</Private>
         </Reference>
+        <Reference Include="UnityEngine.CoreModule">
+            <HintPath>..\lib\mono\UnityEngine.CoreModule.dll</HintPath>
+            <Private>False</Private>
+        </Reference>
+        <Reference Include="UnityEngine.TextRenderingModule">
+            <HintPath>..\lib\mono\UnityEngine.TextRenderingModule.dll</HintPath>
+            <Private>False</Private>
+        </Reference>
         <Reference Include="UnityEngine.UI">
             <HintPath>..\lib\mono\UnityEngine.UI.dll</HintPath>
+            <Private>False</Private>
+        </Reference>
+        <Reference Include="UnityEngine.UIModule">
+            <HintPath>..\lib\mono\UnityEngine.UIModule.dll</HintPath>
             <Private>False</Private>
         </Reference>
     </ItemGroup>
@@ -77,14 +92,6 @@
         </Reference>
         <Reference Include="BepInEx.Unity.IL2CPP">
             <HintPath>..\lib\BepInEx.Unity.IL2CPP.dll</HintPath>
-            <Private>False</Private>
-        </Reference>
-        <Reference Include="Il2Cppmscorlib">
-            <HintPath>..\lib\interop\Il2Cppmscorlib.dll</HintPath>
-            <Private>False</Private>
-        </Reference>
-        <Reference Include="Il2CppSystem.Core">
-            <HintPath>..\lib\interop\Il2CppSystem.Core.dll</HintPath>
             <Private>False</Private>
         </Reference>
         <Reference Include="Il2Cppmscorlib">
@@ -126,10 +133,6 @@
             <HintPath>..\lib\interop\Il2CppSystem.Core.dll</HintPath>
             <Private>False</Private>
         </Reference>
-        <Reference Include="Il2Cppmscorlib">
-            <HintPath>..\lib\interop\Il2Cppmscorlib.dll</HintPath>
-            <Private>False</Private>
-        </Reference>
         <Reference Include="Il2CppSystem.Core">
             <HintPath>..\lib\interop\Il2CppSystem.Core.dll</HintPath>
             <Private>False</Private>
@@ -155,16 +158,18 @@
             <Private>False</Private>
         </Reference>
     </ItemGroup>
-    <!-- ANALYZERS -->
-    <ItemGroup>
-        <Analyzer Include="..\packages\UniverseLib.Analyzers.1.0.4\analyzers\dotnet\cs\UniverseLib.Analyzers.dll" />
-    </ItemGroup>
     <!-- PROJECT REFERENCES -->
     <ItemGroup>
         <ProjectReference Include="..\src_patcher\BepInExConfigManager.Patcher.csproj">
             <IncludeAssets>compile</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </ProjectReference>
+    </ItemGroup>
+    <ItemGroup>
+      <Reference Include="SemanticVersioning">
+        <HintPath>..\lib\SemanticVersioning.dll</HintPath>
+        <Private>False</Private>
+      </Reference>
     </ItemGroup>
     <Target Name="DeleteFileCoreCLR" AfterTargets="Build" Condition="'$(Configuration)' == 'Release_IL2CPP_CoreCLR'">
         <Delete Files="$(TargetDir)BepInExConfigManager.Il2Cpp.Patcher.dll" /> 
