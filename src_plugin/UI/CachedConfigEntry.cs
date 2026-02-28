@@ -179,7 +179,7 @@ namespace ConfigManager.UI
             if (ConfigManager.Display_Config_Type.Value)
                 mainLabel.text += $" <i>({SignatureHighlighter.Parse(RefConfig.SettingType, false)})</i>";
             if (IsAdvanced)
-                mainLabel.text += $" <i>(<color=#da2c43>高级</color>)</i>";
+                mainLabel.text += $" <i>(<color=#da2c43>{I18n.T("Advanced")}</color>)</i>";
             UIFactory.SetLayoutElement(mainLabel.gameObject, minWidth: 200, minHeight: 22, flexibleWidth: 9999, flexibleHeight: 0);
 
             // Undo button

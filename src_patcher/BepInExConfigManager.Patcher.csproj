@@ -15,7 +15,7 @@
     <AssemblyName>BepInExConfigManager.Mono.Patcher</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release_IL2CPP'">
-      <TargetFramework>net472</TargetFramework>
+      <TargetFramework>net6.0</TargetFramework>
     <OutputPath>..\Release\BepInExConfigManager.Il2Cpp\patchers\</OutputPath>
     <DefineConstants>CPP</DefineConstants>
     <AssemblyName>BepInExConfigManager.Il2Cpp.Patcher</AssemblyName>

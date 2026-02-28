@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+#if MONO
+using BepInEx.Unity.Mono;
+#endif
 using System.Text;
 using BepInEx;
 using BepInEx.Configuration;

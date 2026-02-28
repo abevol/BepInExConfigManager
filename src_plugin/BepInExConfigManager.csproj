@@ -15,7 +15,7 @@
     <!-- CONFIGURATIONS -->
     <PropertyGroup Condition="'$(Configuration)' == 'Release_IL2CPP'">
         <OutputPath>..\Release\BepInExConfigManager.Il2Cpp\plugins\</OutputPath>
-        <TargetFramework>net472</TargetFramework>
+        <TargetFramework>net6.0</TargetFramework>
         <DefineConstants>CPP,INTEROP</DefineConstants>
         <AssemblyName>BepInExConfigManager.Il2Cpp</AssemblyName>
     </PropertyGroup>
@@ -35,6 +35,8 @@
     <!-- NUGET -->
     <ItemGroup>
         <PackageReference Include="HarmonyX" Version="2.10.1" IncludeAssets="Compile" />
+    </ItemGroup>
+    <ItemGroup Condition="'$(Configuration)' == 'Release_Mono'">
         <PackageReference Include="UniverseLib.Mono" Version="1.5.1" />
     </ItemGroup>
     <!-- mono -->

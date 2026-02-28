@@ -17,7 +17,9 @@ using UniverseLib.Utility;
 using HarmonyLib;
 using UniverseLib.UI.Panels;
 using System.IO;
+#if MONO
 using BepInEx.Unity.Mono;
+#endif
 #if CPP
 using BepInEx.Unity.IL2CPP;
 #endif

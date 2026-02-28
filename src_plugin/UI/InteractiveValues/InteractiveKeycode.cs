@@ -144,3 +144,4 @@ namespace ConfigManager.UI.InteractiveValues
             clearButton.Component.gameObject.SetActive(false);
         }
 }
+}
