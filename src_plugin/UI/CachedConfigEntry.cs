@@ -69,7 +69,7 @@ namespace ConfigManager.UI
                 && RefConfig.Description.AcceptableValues.GetType().Name.StartsWith("AcceptableValueList"))
             {
                 Type type = value.GetActualType();
-                IValue = new InteractiveValueList(value, type);
+                IValue = new InteractiveValueDropdown(value, type);
             }
             else
                 IValue = InteractiveValue.Create(value, fallbackType);

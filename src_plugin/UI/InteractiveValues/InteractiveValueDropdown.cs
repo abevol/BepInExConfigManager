@@ -11,14 +11,14 @@ using UniverseLib;
 
 namespace ConfigManager.UI.InteractiveValues
 {
-    public class InteractiveValueList : InteractiveValue
+    public class InteractiveValueDropdown : InteractiveValue
     {
         internal IEnumerable<object> acceptableValues;
 
         internal Dropdown dropdown;
         internal Dictionary<object, Dropdown.OptionData> dropdownOptions = new();
 
-        public InteractiveValueList(object value, Type valueType) : base(value, valueType) { }
+        public InteractiveValueDropdown(object value, Type valueType) : base(value, valueType) { }
 
         public override bool SupportsType(Type type) => type.IsEnum;
 
@@ -70,7 +70,7 @@ namespace ConfigManager.UI.InteractiveValues
 
             // dropdown
 
-            GameObject dropdownObj = UIFactory.CreateDropdown(mainContent, "InteractiveValueList", out dropdown, "", 14, null);
+            GameObject dropdownObj = UIFactory.CreateDropdown(mainContent, "InteractiveValueDropdown", out dropdown, "", 14, null);
             UIFactory.SetLayoutElement(dropdownObj, minWidth: 400, minHeight: 25);
 
             dropdown.onValueChanged.AddListener((int val) =>
