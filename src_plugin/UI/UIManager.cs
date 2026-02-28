@@ -257,16 +257,35 @@ namespace ConfigManager.UI
                             object[] tags = configEntry.Description?.Tags;
                             if (tags != null && tags.Any())
                             {
-                                if (tags.Any(it => it is string s && s == "Advanced"))
+                                foreach (var tag in tags)
                                 {
-                                    cache.IsAdvanced = true;
-                                }
-                                else if (tags.FirstOrDefault(it => it.GetType().Name == "ConfigurationManagerAttributes") is object attributes)
-                                {
-                                    cache.IsAdvanced = (bool?)attributes.GetType().GetField("IsAdvanced")?.GetValue(attributes) == true;
+                                    if (tag is string strTag)
+                                    {
+                                        if (strTag == "Advanced")
+                                            cache.IsAdvanced = true;
+                                        else if (strTag == "ReadOnly")
+                                            cache.ReadOnly = cache.HideDefaultButton = true;
+                                        else if (strTag == "AllowCopy")
+                                            cache.AllowCopy = true;
+                                        else if (strTag == "HideDefaultButton")
+                                            cache.HideDefaultButton = true;
+                                    }
+                                    else if ((tag.GetType().Name == "ConfigurationManagerAttributes") && tag is { } attributes)
+                                    {
+                                        cache.IsAdvanced = (bool?)attributes.GetType().GetField("IsAdvanced")?.GetValue(attributes) == true;
+                                        cache.ReadOnly = cache.HideDefaultButton = (bool?)attributes.GetType().GetField("ReadOnly")?.GetValue(attributes) == true;
+                                        cache.AllowCopy = (bool?)attributes.GetType().GetField("AllowCopy")?.GetValue(attributes) == true;
+                                        cache.HideDefaultButton = (bool?)attributes.GetType().GetField("HideDefaultButton")?.GetValue(attributes) == true;
+                                    }
                                 }
                             }
                         }
+
+                        if (forceAdvanced)
+                            cache.IsAdvanced = true;
+
+                        if (cache.ReadOnly)
+                            cache.RefConfig.BoxedValue = cache.RefConfig.DefaultValue;
 
                         cache.Enable();
 

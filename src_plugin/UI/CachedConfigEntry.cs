@@ -17,6 +17,9 @@ namespace ConfigManager.UI
     {
         public ConfigEntryBase RefConfig { get; }
         public bool IsAdvanced;
+        public bool ReadOnly;
+        public bool AllowCopy;
+        public bool HideDefaultButton;
 
         public object EditedValue { get; internal set; }
         public InteractiveValue IValue;
@@ -192,9 +195,12 @@ namespace ConfigManager.UI
 
             // Default button
 
-            UniverseLib.UI.Models.ButtonRef defaultButton = UIFactory.CreateButton(horiGroup, "DefaultButton", I18n.T("Default"), new Color(0.3f, 0.3f, 0.3f));
-            defaultButton.OnClick += RevertToDefault;
-            UIFactory.SetLayoutElement(defaultButton.Component.gameObject, minWidth: 80, minHeight: 22, flexibleWidth: 0);
+            if (!HideDefaultButton)
+            {
+                UniverseLib.UI.Models.ButtonRef defaultButton = UIFactory.CreateButton(horiGroup, "DefaultButton", I18n.T("Default"), new Color(0.3f, 0.3f, 0.3f));
+                defaultButton.OnClick += RevertToDefault;
+                UIFactory.SetLayoutElement(defaultButton.Component.gameObject, minWidth: 80, minHeight: 22, flexibleWidth: 0);
+            }
 
             // Description label
 

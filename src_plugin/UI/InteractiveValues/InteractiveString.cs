@@ -81,6 +81,12 @@ namespace ConfigManager.UI.InteractiveValues
 
             valueInput.OnValueChanged += (string val) =>
             {
+                if (Owner.ReadOnly)
+                {
+                    valueInput.Text = (string)Value;
+                    return;
+                }
+            {
                 hiddenText.text = val ?? "";
                 LayoutRebuilder.ForceRebuildLayoutImmediate(Owner.ContentRect);
                 SetValueFromInput();
@@ -89,20 +95,23 @@ namespace ConfigManager.UI.InteractiveValues
 
             // Copy button
 
-            ButtonRef copyButton = UIFactory.CreateButton(hiddenObj, "CopyButton", I18n.T("Copy"), new Color(0.3f, 0.3f, 0.3f));
-            copyButton.OnClick += () =>
+            if (Owner.AllowCopy)
             {
-                var str = Value as string ?? "";
-                WindowsClipboard.SetText(str);
-                copyButton.ButtonText.text = $"<color=#03c03c>{I18n.T("Copied")}</color>";
-
-                new Thread(() =>
+                ButtonRef copyButton = UIFactory.CreateButton(hiddenObj, "CopyButton", I18n.T("Copy"), new Color(0.3f, 0.3f, 0.3f));
+                copyButton.OnClick += () =>
                 {
-                    Thread.Sleep(500);
-                    copyButton.ButtonText.text = I18n.T("Copy");
-                }).Start();
-            };
-            UIFactory.SetLayoutElement(copyButton.Component.gameObject, minWidth: 80, minHeight: 22, flexibleWidth: 0);
+                    var str = Value as string ?? "";
+                    WindowsClipboard.SetText(str);
+                    copyButton.ButtonText.text = $"<color=#03c03c>{I18n.T("Copied")}</color>";
+
+                    new Thread(() =>
+                    {
+                        Thread.Sleep(500);
+                        copyButton.ButtonText.text = I18n.T("Copy");
+                    }).Start();
+                };
+                UIFactory.SetLayoutElement(copyButton.Component.gameObject, minWidth: 80, minHeight: 22, flexibleWidth: 0);
+            }
             RefreshUIForValue();
         }
     }

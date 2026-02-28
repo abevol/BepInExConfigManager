@@ -55,7 +55,16 @@ namespace ConfigManager.UI.InteractiveValues
                 {
                     toggleObj = UIFactory.CreateToggle(mainContent, "InteractiveBoolToggle", out toggle, out _, new Color(0.1f, 0.1f, 0.1f));
                     UIFactory.SetLayoutElement(toggleObj, minWidth: 24);
-                    toggle.onValueChanged.AddListener(OnToggleValueChanged);
+                    toggle.onValueChanged.AddListener((bool val) =>
+                    {
+                        if (Owner.ReadOnly)
+                        {
+                            toggle.isOn = (bool)Value;
+                            return;
+                        }
+
+                        OnToggleValueChanged(val);
+                    });
                     added = true;
                 }
                 catch 
