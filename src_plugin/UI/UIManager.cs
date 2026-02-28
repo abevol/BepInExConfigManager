@@ -25,6 +25,7 @@ using BepInEx.Unity.Mono;
 #if CPP
 using BepInEx.Unity.IL2CPP;
 #endif
+
 namespace ConfigManager.UI
 {
     public class ConfigFileInfo
@@ -280,33 +281,28 @@ namespace ConfigManager.UI
                     {
                         CachedConfigEntry cache = new(configEntry, content);
 
-                        cache.IsAdvanced = forceAdvanced;
-
-                        if (!cache.IsAdvanced)
+                        object[] tags = configEntry.Description?.Tags;
+                        if (tags != null && tags.Any())
                         {
-                            object[] tags = configEntry.Description?.Tags;
-                            if (tags != null && tags.Any())
+                            foreach (var tag in tags)
                             {
-                                foreach (var tag in tags)
+                                if (tag is string strTag)
                                 {
-                                    if (tag is string strTag)
-                                    {
-                                        if (strTag == "Advanced")
-                                            cache.IsAdvanced = true;
-                                        else if (strTag == "ReadOnly")
-                                            cache.ReadOnly = cache.HideDefaultButton = true;
-                                        else if (strTag == "AllowCopy")
-                                            cache.AllowCopy = true;
-                                        else if (strTag == "HideDefaultButton")
-                                            cache.HideDefaultButton = true;
-                                    }
-                                    else if ((tag.GetType().Name == "ConfigurationManagerAttributes") && tag is { } attributes)
-                                    {
-                                        cache.IsAdvanced = (bool?)attributes.GetType().GetField("IsAdvanced")?.GetValue(attributes) == true;
-                                        cache.ReadOnly = cache.HideDefaultButton = (bool?)attributes.GetType().GetField("ReadOnly")?.GetValue(attributes) == true;
-                                        cache.AllowCopy = (bool?)attributes.GetType().GetField("AllowCopy")?.GetValue(attributes) == true;
-                                        cache.HideDefaultButton = (bool?)attributes.GetType().GetField("HideDefaultButton")?.GetValue(attributes) == true;
-                                    }
+                                    if (strTag == "Advanced")
+                                        cache.IsAdvanced = true;
+                                    else if (strTag == "ReadOnly")
+                                        cache.ReadOnly = cache.HideDefaultButton = true;
+                                    else if (strTag == "AllowCopy")
+                                        cache.AllowCopy = true;
+                                    else if (strTag == "HideDefaultButton")
+                                        cache.HideDefaultButton = true;
+                                }
+                                else if ((tag.GetType().Name == "ConfigurationManagerAttributes") && tag is { } attributes)
+                                {
+                                    cache.IsAdvanced = (bool?)attributes.GetType().GetField("IsAdvanced")?.GetValue(attributes) == true;
+                                    cache.ReadOnly = cache.HideDefaultButton = (bool?)attributes.GetType().GetField("ReadOnly")?.GetValue(attributes) == true;
+                                    cache.AllowCopy = (bool?)attributes.GetType().GetField("AllowCopy")?.GetValue(attributes) == true;
+                                    cache.HideDefaultButton = (bool?)attributes.GetType().GetField("HideDefaultButton")?.GetValue(attributes) == true;
                                 }
                             }
                         }
@@ -635,7 +631,7 @@ namespace ConfigManager.UI
                 SetHiddenConfigVisibility(val);
             });
             toggleText.text = I18n.T("ShowAdvancedSettings");
-            UIFactory.SetLayoutElement(toggleObj, minWidth: 280, minHeight: 25, flexibleHeight: 0, flexibleWidth: 0);
+            UIFactory.SetLayoutElement(toggleObj, minWidth: 295, minHeight: 25, flexibleHeight: 0, flexibleWidth: 0);
 
             InputFieldRef inputField = UIFactory.CreateInputField(toolbarGroup, "FilterInput", I18n.T("Search"));
             UIFactory.SetLayoutElement(inputField.Component.gameObject, flexibleWidth: 9999, minHeight: 25);
