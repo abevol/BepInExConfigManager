@@ -79,6 +79,41 @@ namespace ConfigManager
                     { "PluginName", "模组配置管理器" },
                     { "ToggleHint", "<color=#524c5a>[ {0} 键 ] 显示/隐藏</color>" }
                 }
+            },
+            {
+                "ru", new Dictionary<string, string>
+                {
+                    { "MainMenuToggle", "Переключатель главного меню" },
+                    { "MainMenuToggleDesc", "Переключатель для меню менеджера конфигураций" },
+                    { "AutoSave", "Автосохранение настроек" },
+                    { "AutoSaveDesc", "Автоматически сохранять настройки после их изменения? Это сделает функцию отмены недоступной." },
+                    { "AutoShowMainMenu", "Автопоказ главного меню" },
+                    { "AutoShowMainMenuDesc", "Автоматически показывать главное меню после запуска игры." },
+                    { "DisplayConfigType", "Отображать тип конфигурации" },
+                    { "DisplayConfigTypeDesc", "Показывать тип конфигурации в строке заголовка настройки." },
+                    { "StartupDelay", "Задержка запуска" },
+                    { "StartupDelayDesc", "Задерживает основной процесс запуска. Настройте, если возникают проблемы." },
+                    { "DisableEventSystemOverride", "Отключить переопределение EventSystem" },
+                    { "DisableEventSystemOverrideDesc", "Отключает переопределение EventSystem игры. Используйте, если возникают проблемы с вводом в интерфейсе." },
+                    { "Advanced", "Расширенные" },
+                    { "Undo", "Отменить" },
+                    { "Default", "По умолчанию" },
+                    { "Rebind", "Переназначить" },
+                    { "Confirm", "Подтвердить" },
+                    { "Cancel", "Отмена" },
+                    { "Clear", "Очистить" },
+                    { "Copy", "Копировать" },
+                    { "Copied", "Скопировано" },
+                    { "PressAKey", "Нажмите клавишу..." },
+                    { "NotSet", "<не задано>" },
+                    { "ExpandToEdit", "▲ Развернуть для редактирования" },
+                    { "ClickToHide", "▼ Нажмите, чтобы скрыть" },
+                    { "ShowAdvancedSettings", "Показать расширенные настройки" },
+                    { "Search", "Поиск..." },
+                    { "SavePreferences", "Сохранить настройки" },
+                    { "PluginName", "BepInExConfigManager" },
+                    { "ToggleHint", "<color=#524c5a>[ {0} ] Показать/Скрыть</color>" }
+                }
             }
         };
 
