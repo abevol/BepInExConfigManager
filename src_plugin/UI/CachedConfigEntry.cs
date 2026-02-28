@@ -162,7 +162,7 @@ namespace ConfigManager.UI
         {
             UIConstructed = true;
 
-            UIroot = UIFactory.CreateVerticalGroup(parentContent, "CacheObjectBase.MainContent", true, false, true, true, 0, 
+            UIroot = UIFactory.CreateVerticalGroup(parentContent, $"CachedConfigEntry_{this.RefConfig.Definition.Key}", true, false, true, true, 0, 
                 default, new Color(1,1,1,0));
             ContentRect = UIroot.GetComponent<RectTransform>();
             ContentRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 25);

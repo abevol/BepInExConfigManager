@@ -39,7 +39,7 @@ namespace ConfigManager.UI
         internal GameObject contentObj;
         internal ButtonRef currentNavButton;
         internal Dictionary<string, ButtonRef> navButtons;
-        internal Dictionary<string, GameObject> navTitles;
+        internal Dictionary<string, GameObject> navSections;
 
         internal IEnumerable<GameObject> HiddenEntries
             => Entries.Where(it => it.IsHidden).Select(it => it.content);
@@ -256,9 +256,10 @@ namespace ConfigManager.UI
 
                 // Create actual entry editors
                 info.navButtons = new Dictionary<string, ButtonRef>();
-                info.navTitles = new Dictionary<string, GameObject>();
+                info.navSections = new Dictionary<string, GameObject>();
                 foreach (KeyValuePair<string, List<ConfigEntryBase>> ctg in dict)
                 {
+                    var section = content;
                     if (!string.IsNullOrEmpty(ctg.Key))
                     {
                         // Config nav button
@@ -269,17 +270,21 @@ namespace ConfigManager.UI
                             new Color(0.20f, 0.18f, 0.15f));
                         info.navButtons.Add(ctg.Key, navButton);
 
-                        // Config block title
-                        GameObject bg = UIFactory.CreateHorizontalGroup(content, "TitleBG", true, true, true, true, 0, default,
+                        // Config section
+                        section = UIFactory.CreateVerticalGroup(content, "ConfigSection_" + ctg.Key,
+                            true, false, true, true, 4, default, new Color(0.05f, 0.05f, 0.05f));
+                        info.navSections.Add(ctg.Key, section);
+
+                        // Config section title
+                        GameObject bg = UIFactory.CreateHorizontalGroup(section, "TitleBG", true, true, true, true, 0, default,
                             new Color(0.07f, 0.07f, 0.07f));
                         Text title = UIFactory.CreateLabel(bg, $"Title_{ctg.Key}", ctg.Key, TextAnchor.MiddleCenter, default, true, 17);
                         UIFactory.SetLayoutElement(title.gameObject, minHeight: 30, minWidth: 200, flexibleWidth: 9999);
-                        info.navTitles.Add(ctg.Key, bg);
                     }
 
                     foreach (ConfigEntryBase configEntry in ctg.Value)
                     {
-                        CachedConfigEntry cache = new(configEntry, content);
+                        CachedConfigEntry cache = new(configEntry, section);
 
                         object[] tags = configEntry.Description?.Tags;
                         if (tags != null && tags.Any())
@@ -501,12 +506,12 @@ namespace ConfigManager.UI
         public static void OnNavButtonClicked(ConfigFileInfo info, string configBlockKey)
         {
             SetActiveNavButton(info, configBlockKey);
-            NavigateToConfigBlock(info, configBlockKey);
+            NavigateToConfigSection(info, configBlockKey);
         }
 
-        public static void SetActiveNavButton(ConfigFileInfo info, string configBlockKey)
+        public static void SetActiveNavButton(ConfigFileInfo info, string sectionKey)
         {
-            if (!info.navButtons.ContainsKey(configBlockKey))
+            if (!info.navButtons.ContainsKey(sectionKey))
                 return;
             if (info.currentNavButton != null)
             {
@@ -514,29 +519,29 @@ namespace ConfigManager.UI
                 info.currentNavButton = null;
             }
 
-            var navButton = info.navButtons[configBlockKey];
+            var navButton = info.navButtons[sectionKey];
             RuntimeHelper.SetColorBlock(navButton.Component, normalActiveColor);
             info.currentNavButton = navButton;
         }
 
-        public static void NavigateToConfigBlock(ConfigFileInfo info, string configBlockKey)
+        public static void NavigateToConfigSection(ConfigFileInfo info, string sectionKey)
         {
-            if (!info.navTitles.TryGetValue(configBlockKey, out var navTitle))
+            if (!info.navSections.TryGetValue(sectionKey, out var section))
                 return;
 
-            ConfigEditorScrollRect.SnapTo(navTitle.GetComponent<RectTransform>());
+            ConfigEditorScrollRect.SnapToSection(section.GetComponent<RectTransform>());
         }
 
         public static void InitScrollRectListeners()
         {
             ConfigEditorScrollRect.onValueChanged.AddListener((Vector2 value) =>
             {
-                if (currentCategory == null || currentCategory.navTitles == null) return;
-                foreach (var pair in currentCategory.navTitles)
+                if (currentCategory == null || currentCategory.navSections == null) return;
+                foreach (var pair in currentCategory.navSections)
                 {
-                    var navTitle = pair.Value;
+                    var section = pair.Value;
 
-                    if (ConfigEditorScrollRect.IsInView(navTitle.GetComponent<RectTransform>()))
+                    if (ConfigEditorScrollRect.IsInSection(section.GetComponent<RectTransform>()))
                     {
                         SetActiveNavButton(currentCategory, pair.Key);
                         break;
