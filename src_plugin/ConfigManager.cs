@@ -79,7 +79,7 @@ namespace ConfigManager
 
         public class ManagerBehaviour : MonoBehaviour
         {
-            public ManagerBehaviour(IntPtr ptr) : base(ptr) { }
+            public ManagerBehaviour(IntPtr ptr) : base() { }
 
             internal void Update()
             {

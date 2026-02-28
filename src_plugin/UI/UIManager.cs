@@ -17,13 +17,14 @@ using UniverseLib.Utility;
 using HarmonyLib;
 using UniverseLib.UI.Panels;
 using System.IO;
+using System.Threading;
+using UniverseLib.UI.Widgets;
 #if MONO
 using BepInEx.Unity.Mono;
 #endif
 #if CPP
 using BepInEx.Unity.IL2CPP;
 #endif
-
 namespace ConfigManager.UI
 {
     public class ConfigFileInfo
@@ -33,7 +34,11 @@ namespace ConfigManager.UI
 
         internal bool isCompletelyHidden;
         internal ButtonRef listButton;
+        internal GameObject navbarGroupObj;
         internal GameObject contentObj;
+        internal ButtonRef currentNavButton;
+        internal Dictionary<string, ButtonRef> navButtons;
+        internal Dictionary<string, GameObject> navTitles;
 
         internal IEnumerable<GameObject> HiddenEntries
             => Entries.Where(it => it.IsHidden).Select(it => it.content);
@@ -96,7 +101,12 @@ namespace ConfigManager.UI
         public static bool ShowHiddenConfigs { get; internal set; }
 
         internal static GameObject CategoryListContent;
+        internal static GameObject ConfigNavbarContent;
         internal static GameObject ConfigEditorContent;
+        internal static ScrollRect CategoryListScrollRect;
+        internal static ScrollRect ConfigNavbarScrollRect;
+        internal static ScrollRect ConfigEditorScrollRect;
+        internal static AutoSliderScrollbar ConfigEditorScrollbar;
 
         internal static string Filter => currentFilter ?? "";
         private static string currentFilter;
@@ -118,10 +128,12 @@ namespace ConfigManager.UI
             // Force refresh of anchors etc
             Canvas.ForceUpdateCanvases();
 
-            ShowMenu = ConfigManager.Auto_Show_Main_Menu.Value;
+            ShowMenu = false;
 
             SetupCategories();
-        }
+
+            if (ShowMenu == false && ConfigManager.Auto_Show_Main_Menu.Value)
+                ShowMenu = true;
 
         internal static void SetupCategories()
         {
@@ -211,6 +223,11 @@ namespace ConfigManager.UI
                     new Color(0.20f, 0.18f, 0.15f));
 
                 info.listButton = btn;
+
+                // Navbar content
+
+                GameObject navbarGroup = UIFactory.CreateHorizontalGroup(ConfigNavbarContent, "NAVBAR_GROUP_" + GUID,
+                    true, true, true, true, 2, default, new Color(0.05f, 0.05f, 0.05f));
 
                 // Editor content
 
@@ -302,6 +319,9 @@ namespace ConfigManager.UI
                     }
                 }
 
+                if (info.navButtons.Count > 0)
+                    SetActiveNavButton(info, info.navButtons.First().Value.ButtonText.text);
+
                 // hide buttons for completely-hidden categories.
                 if (!info.Entries.Any(it => !it.IsHidden))
                 {
@@ -310,7 +330,9 @@ namespace ConfigManager.UI
                 }
 
                 content.SetActive(false);
+                navbarGroup.SetActive(false);
 
+                info.navbarGroupObj = navbarGroup;
                 info.contentObj = content;
 
                 ConfigFiles.Add(GUID, info);
@@ -446,6 +468,7 @@ namespace ConfigManager.UI
             currentCategory = info;
 
             GameObject obj = info.contentObj;
+            info.navbarGroupObj.SetActive(true);
             obj.SetActive(true);
 
             ButtonRef btn = info.listButton;
@@ -460,9 +483,57 @@ namespace ConfigManager.UI
                 return;
 
             RuntimeHelper.SetColorBlock(currentCategory.listButton.Component, normalInactiveColor);
+            currentCategory.navbarGroupObj.SetActive(false);
             currentCategory.contentObj.SetActive(false);
 
             currentCategory = null;
+        }
+
+        public static void OnNavButtonClicked(ConfigFileInfo info, string configBlockKey)
+        {
+            SetActiveNavButton(info, configBlockKey);
+            NavigateToConfigBlock(info, configBlockKey);
+        }
+
+        public static void SetActiveNavButton(ConfigFileInfo info, string configBlockKey)
+        {
+            if (!info.navButtons.ContainsKey(configBlockKey))
+                return;
+            if (info.currentNavButton != null)
+            {
+                RuntimeHelper.SetColorBlock(info.currentNavButton.Component, normalInactiveColor);
+                info.currentNavButton = null;
+            }
+
+            var navButton = info.navButtons[configBlockKey];
+            RuntimeHelper.SetColorBlock(navButton.Component, normalActiveColor);
+            info.currentNavButton = navButton;
+        }
+
+        public static void NavigateToConfigBlock(ConfigFileInfo info, string configBlockKey)
+        {
+            if (!info.navTitles.TryGetValue(configBlockKey, out var navTitle))
+                return;
+
+            ConfigEditorScrollRect.SnapTo(navTitle.GetComponent<RectTransform>());
+        }
+
+        public static void InitScrollRectListeners()
+        {
+            ConfigEditorScrollRect.onValueChanged.AddListener((Vector2 value) =>
+            {
+                if (currentCategory == null || currentCategory.navTitles == null) return;
+                foreach (var pair in currentCategory.navTitles)
+                {
+                    var navTitle = pair.Value;
+
+                    if (ConfigEditorScrollRect.IsInView(navTitle.GetComponent<RectTransform>()))
+                    {
+                        SetActiveNavButton(currentCategory, pair.Key);
+                        break;
+                    }
+                }
+            });
         }
 
         public override void SetDefaultSizeAndPosition()
@@ -563,13 +634,25 @@ namespace ConfigManager.UI
             GameObject horiGroup = UIFactory.CreateHorizontalGroup(ContentRoot, "Main", true, true, true, true, 2, default, new Color(0.08f, 0.08f, 0.08f));
 
             GameObject ctgList = UIFactory.CreateScrollView(horiGroup, "CategoryList", out GameObject ctgContent, out _, new Color(0.1f, 0.1f, 0.1f));
+            CategoryListScrollRect = ctgList.GetComponent<ScrollRect>();
+            CategoryListScrollRect.verticalScrollbarVisibility = ScrollRect.ScrollbarVisibility.AutoHideAndExpandViewport;
             UIFactory.SetLayoutElement(ctgList, minWidth: 300, flexibleWidth: 0);
-            CategoryListContent = ctgContent;
             UIFactory.SetLayoutGroup<VerticalLayoutGroup>(ctgContent, spacing: 3);
+            CategoryListContent = ctgContent;
 
-            GameObject editor = UIFactory.CreateScrollView(horiGroup, "ConfigEditor", out GameObject editorContent, out _, new Color(0.05f, 0.05f, 0.05f));
+            GameObject configGroup = UIFactory.CreateVerticalGroup(horiGroup, "Config",
+                true, false, true, true, 2, default, new Color(0.05f, 0.05f, 0.05f));
+
+            GameObject configNavbar = UIFactory.CreateScrollView(configGroup, "ConfigNavbar", out GameObject configNavbarContent, out AutoSliderScrollbar navScrollbar, new Color(0.1f, 0.1f, 0.1f));
+            ConfigNavbarScrollRect = configNavbar.GetComponent<ScrollRect>();
+            UIFactory.SetLayoutElement(configNavbar, flexibleWidth: 9999, minHeight: 32, flexibleHeight: 0);
+            ConfigNavbarContent = configNavbarContent;
+
+            GameObject editor = UIFactory.CreateScrollView(configGroup, "ConfigEditor", out GameObject editorContent, out AutoSliderScrollbar editorScrollbar, new Color(0.05f, 0.05f, 0.05f));
+            ConfigEditorScrollbar = editorScrollbar;
             UIFactory.SetLayoutElement(editor, flexibleWidth: 9999);
             ConfigEditorContent = editorContent;
-        }
+            ConfigEditorScrollRect = editor.GetComponent<ScrollRect>();
+            InitScrollRectListeners();
     }
 }
