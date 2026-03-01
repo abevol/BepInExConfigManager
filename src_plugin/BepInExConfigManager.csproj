@@ -7,27 +7,26 @@
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-        <AllowedReferenceRelatedFileExtensions></AllowedReferenceRelatedFileExtensions>
+        <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
         <Configurations>Release_MONO;Release_IL2CPP;Release_IL2CPP_CoreCLR</Configurations>
     </PropertyGroup>
 
     <!-- CONFIGURATIONS -->
     <PropertyGroup Condition="'$(Configuration)' == 'Release_IL2CPP'">
-        <OutputPath>..\Release\BepInExConfigManager.Il2Cpp\plugins\</OutputPath>
+        <OutputPath>..\Release\BepInExConfigManager.Il2Cpp\plugins\BepInExConfigManager\</OutputPath>
         <TargetFramework>net6.0</TargetFramework>
         <DefineConstants>CPP,INTEROP</DefineConstants>
         <AssemblyName>BepInExConfigManager.Il2Cpp</AssemblyName>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Configuration)' == 'Release_IL2CPP_CoreCLR'">
-        <OutputPath>..\Release\BepInExConfigManager.Il2Cpp.CoreCLR\plugins\</OutputPath>
+        <OutputPath>..\Release\BepInExConfigManager.Il2Cpp.CoreCLR\plugins\BepInExConfigManager\</OutputPath>
         <TargetFramework>net6</TargetFramework>
         <DefineConstants>CPP,INTEROP</DefineConstants>
         <AssemblyName>BepInExConfigManager.Il2Cpp.CoreCLR</AssemblyName>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Configuration)' == 'Release_Mono'">
-        <TargetFramework>net461</TargetFramework>
-        <OutputPath>..\Release\BepInExConfigManager.Mono\plugins\</OutputPath>
+        <TargetFramework>netstandard2.1</TargetFramework>
+        <OutputPath>..\Release\BepInExConfigManager.Mono\plugins\BepInExConfigManager\</OutputPath>
         <DefineConstants>MONO</DefineConstants>
         <AssemblyName>BepInExConfigManager.Mono</AssemblyName>
     </PropertyGroup>
@@ -35,9 +34,6 @@
     <!-- NUGET -->
     <ItemGroup>
         <PackageReference Include="HarmonyX" Version="2.10.1" IncludeAssets="Compile" />
-    </ItemGroup>
-    <ItemGroup Condition="'$(Configuration)' == 'Release_Mono'">
-        <PackageReference Include="UniverseLib.Mono" Version="1.5.1" />
     </ItemGroup>
     <!-- mono -->
     <!-- il2cpp Interop nuget -->
@@ -49,7 +45,6 @@
     <ItemGroup Condition="'$(Configuration)'=='Release_IL2CPP'">
         <PackageReference Include="Il2CppInterop.Common" Version="1.4.5" IncludeAssets="Compile" />
         <PackageReference Include="Il2CppInterop.Runtime" Version="1.4.5" IncludeAssets="Compile" />
-        <PackageReference Include="UniverseLib.IL2CPP.Interop" Version="1.5.1" />
     </ItemGroup>
 
     <!-- ASSEMBLY REFS -->
@@ -81,6 +76,13 @@
         </Reference>
         <Reference Include="UnityEngine.UIModule">
             <HintPath>..\lib\mono\UnityEngine.UIModule.dll</HintPath>
+            <Private>False</Private>
+        </Reference>
+        <Reference Include="UniverseLib.Mono">
+            <HintPath>..\lib\mono\UniverseLib.Mono.dll</HintPath>
+        </Reference>
+        <Reference Include="SemanticVersioning">
+            <HintPath>..\lib\SemanticVersioning.dll</HintPath>
             <Private>False</Private>
         </Reference>
     </ItemGroup>
@@ -121,6 +123,13 @@
         <Reference Include="UnityEngine.IMGUIModule">
             <HintPath>..\lib\interop\UnityEngine.IMGUIModule.dll</HintPath>
             <Private>False</Private>
+        </Reference>
+        <Reference Include="SemanticVersioning">
+            <HintPath>..\lib\SemanticVersioning.dll</HintPath>
+            <Private>False</Private>
+        </Reference>
+        <Reference Include="UniverseLib.BIE.IL2CPP.Interop">
+            <HintPath>..\lib\interop\UniverseLib.BIE.IL2CPP.Interop.dll</HintPath>
         </Reference>
     </ItemGroup>
     <!-- il2cpp interop -->
@@ -164,15 +173,6 @@
             <IncludeAssets>compile</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </ProjectReference>
-    </ItemGroup>
-    <ItemGroup>
-      <Reference Include="SemanticVersioning">
-        <HintPath>..\lib\SemanticVersioning.dll</HintPath>
-        <Private>False</Private>
-      </Reference>
-      <Reference Include="UniverseLib.BIE.IL2CPP.Interop">
-        <HintPath>..\lib\interop\UniverseLib.BIE.IL2CPP.Interop.dll</HintPath>
-      </Reference>
     </ItemGroup>
     <Target Name="DeleteFileCoreCLR" AfterTargets="Build" Condition="'$(Configuration)' == 'Release_IL2CPP_CoreCLR'">
         <Delete Files="$(TargetDir)BepInExConfigManager.Il2Cpp.Patcher.dll" />
