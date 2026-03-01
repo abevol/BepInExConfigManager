@@ -70,8 +70,8 @@ namespace ConfigManager
             Instance = this;
 
             ClassInjector.RegisterTypeInIl2Cpp<ManagerBehaviour>();
-            GameObject obj = new("ConfigManagerBehaviour");
-            GameObject.DontDestroyOnLoad(obj);
+            GameObject obj = new("ManagerBehaviour");
+            UnityEngine.Object.DontDestroyOnLoad(obj);
             obj.hideFlags |= HideFlags.HideAndDontSave;
             obj.AddComponent<ManagerBehaviour>();
             Init();
@@ -79,7 +79,7 @@ namespace ConfigManager
 
         public class ManagerBehaviour : MonoBehaviour
         {
-            public ManagerBehaviour(IntPtr ptr) : base() { }
+            public ManagerBehaviour(IntPtr ptr) : base(ptr) { }
 
             internal void Update()
             {

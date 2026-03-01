@@ -44,7 +44,6 @@
     <ItemGroup Condition="'$(Configuration)'=='Release_IL2CPP_CoreCLR'">
         <PackageReference Include="Il2CppInterop.Common" Version="1.4.5" IncludeAssets="Compile" />
         <PackageReference Include="Il2CppInterop.Runtime" Version="1.4.5" IncludeAssets="Compile" />
-        <PackageReference Include="UniverseLib.IL2CPP.Interop" Version="1.5.1" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(Configuration)'=='Release_IL2CPP'">
@@ -171,35 +170,23 @@
         <HintPath>..\lib\SemanticVersioning.dll</HintPath>
         <Private>False</Private>
       </Reference>
+      <Reference Include="UniverseLib.BIE.IL2CPP.Interop">
+        <HintPath>..\lib\interop\UniverseLib.BIE.IL2CPP.Interop.dll</HintPath>
+      </Reference>
     </ItemGroup>
     <Target Name="DeleteFileCoreCLR" AfterTargets="Build" Condition="'$(Configuration)' == 'Release_IL2CPP_CoreCLR'">
-        <Delete Files="$(TargetDir)BepInExConfigManager.Il2Cpp.Patcher.dll" /> 
-        <Delete Files="$(TargetDir)BepInExConfigManager.Il2Cpp.Patcher.dll.config" /> 
-        <Delete Files="$(TargetDir)BepInExConfigManager.Il2Cpp.Patcher.pdb" /> 
-        <Delete Files="$(TargetDir)BepInExConfigManager.Il2Cpp.CoreCLR.deps.json" /> 
-        <Delete Files="$(TargetDir)BepInExConfigManager.Il2Cpp.CoreCLR.pdb" />
-        <Delete Files="$(TargetDir)/../patchers/BepInExConfigManager.Il2Cpp.Patcher.deps.json" />
-        <Delete Files="$(TargetDir)/../patchers/BepInExConfigManager.Il2Cpp.Patcher.dll.config" />
-        <Delete Files="$(TargetDir)/../patchers/BepInExConfigManager.Il2Cpp.Patcher.pdb" />
+        <Delete Files="$(TargetDir)BepInExConfigManager.Il2Cpp.Patcher.dll" />
+        <Delete Files="$(TargetDir)BepInExConfigManager.Il2Cpp.Patcher.dll.config" />
+        <Delete Files="$(TargetDir)BepInExConfigManager.Il2Cpp.Patcher.pdb" />
     </Target>
     <Target Name="DeleteFileIl2Cpp" AfterTargets="Build" Condition="'$(Configuration)' == 'Release_IL2CPP'">
         <Delete Files="$(TargetDir)BepInExConfigManager.Il2Cpp.Patcher.dll" />
         <Delete Files="$(TargetDir)BepInExConfigManager.Il2Cpp.Patcher.dll.config" />
         <Delete Files="$(TargetDir)BepInExConfigManager.Il2Cpp.Patcher.pdb" />
-        <Delete Files="$(TargetDir)BepInExConfigManager.Il2Cpp.deps.json" />
-        <Delete Files="$(TargetDir)BepInExConfigManager.Il2Cpp.pdb" />
-        <Delete Files="$(TargetDir)/../patchers/BepInExConfigManager.Il2Cpp.Patcher.deps.json" />
-        <Delete Files="$(TargetDir)/../patchers/BepInExConfigManager.Il2Cpp.Patcher.dll.config" />
-        <Delete Files="$(TargetDir)/../patchers/BepInExConfigManager.Il2Cpp.Patcher.pdb" />
     </Target>
     <Target Name="DeleteFileMono" AfterTargets="Build" Condition="'$(Configuration)' == 'Release_Mono'">
         <Delete Files="$(TargetDir)BepInExConfigManager.Mono.Patcher.dll" />
         <Delete Files="$(TargetDir)BepInExConfigManager.Mono.Patcher.dll.config" />
         <Delete Files="$(TargetDir)BepInExConfigManager.Mono.Patcher.pdb" />
-        <Delete Files="$(TargetDir)BepInExConfigManager.Mono.deps.json" />
-        <Delete Files="$(TargetDir)BepInExConfigManager.Mono.pdb" />
-        <Delete Files="$(TargetDir)/../patchers/BepInExConfigManager.Mono.Patcher.deps.json" />
-        <Delete Files="$(TargetDir)/../patchers/BepInExConfigManager.Mono.Patcher.dll.config" />
-        <Delete Files="$(TargetDir)/../patchers/BepInExConfigManager.Mono.Patcher.pdb" />
     </Target>
 </Project>
