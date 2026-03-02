@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using Mono.Cecil;
 using System;
 using BepInEx;
@@ -24,6 +25,7 @@ public static class Patcher
     public static List<CachedConfigFile> ConfigFiles { get; } = new();
 
     public static Action<CachedConfigFile> ConfigFileCreated;
+    public static Action<CachedConfigFile> ConfigFileDestroyed;
 
 #if MONO
     public static IEnumerable<string> TargetDLLs { get; } = Enumerable.Empty<string>();
@@ -38,6 +40,20 @@ static Patcher()
     internal static void Init()
     {
         new Harmony(GUID).PatchAll();
+    }
+
+    /// <summary>
+    /// Remove a ConfigFile from the tracked list and notify subscribers.
+    /// Call this when a plugin is unloaded or its ConfigFile is no longer needed.
+    /// </summary>
+    public static void RemoveConfigFile(ConfigFile configFile)
+    {
+        CachedConfigFile cached = ConfigFiles.Find(c => c.configFile == configFile);
+        if (cached == null)
+            return;
+
+        ConfigFiles.Remove(cached);
+        ConfigFileDestroyed?.Invoke(cached);
     }
 
     // Patch the ConfigFile ctor instead of searching for plugins

@@ -151,6 +151,7 @@ namespace ConfigManager.UI
                 ProcessConfigFile(cachedConfig);
 
             Patcher.ConfigFileCreated += ProcessConfigFile;
+            Patcher.ConfigFileDestroyed += OnConfigFileDestroyed;
         }
 
         static void ProcessConfigFile(CachedConfigFile cachedConfig)
@@ -177,6 +178,62 @@ namespace ConfigManager.UI
             {
                 ConfigManager.LogSource.LogWarning(ex);
             }
+        }
+
+        static void OnConfigFileDestroyed(CachedConfigFile cachedConfig)
+        {
+            try
+            {
+                string guid = cachedConfig.metadata?.GUID
+                    ?? Path.GetFileNameWithoutExtension(cachedConfig.configFile.ConfigFilePath);
+                RemoveCategory(guid, cachedConfig.configFile);
+            }
+            catch (Exception ex)
+            {
+                ConfigManager.LogSource.LogWarning($"Exception removing config file: {ex}");
+            }
+        }
+
+        internal static void RemoveCategory(string guid, ConfigFile configFile)
+        {
+            if (!ConfigFiles.TryGetValue(guid, out ConfigFileInfo info))
+                return;
+
+            // If this is the currently active category, unset it first
+            if (currentCategory == info)
+                UnsetActiveCategory();
+
+            // Clear firstActiveCategory if it points to this one
+            if (firstActiveCategory == guid)
+                firstActiveCategory = null;
+
+            // Unsubscribe SettingChanged event
+            if (configFile != null)
+                configFile.SettingChanged -= ConfigFile_SettingChanged;
+
+            // Clean up editing entries and configsToCached
+            foreach (EntryInfo entry in info.Entries)
+            {
+                editingEntries.Remove(entry.Cached);
+                configsToCached.Remove(entry.RefEntry);
+                entry.Cached.Destroy();
+            }
+            info.Entries.Clear();
+
+            // Update save button state
+            if (!editingEntries.Any() && saveButton?.Component != null)
+                saveButton.Component.interactable = false;
+
+            // Destroy UI GameObjects
+            if (info.listButton?.Component?.gameObject)
+                GameObject.Destroy(info.listButton.Component.gameObject);
+            if (info.navbarGroupObj)
+                GameObject.Destroy(info.navbarGroupObj);
+            if (info.contentObj)
+                GameObject.Destroy(info.contentObj);
+
+            // Remove from dictionary
+            ConfigFiles.Remove(guid);
         }
 
         internal static void SetupCategory(ConfigFile configFile, object plugin, BepInPlugin meta, bool isCoreConfig, bool forceAdvanced = false)
