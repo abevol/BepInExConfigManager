@@ -124,22 +124,22 @@ namespace ConfigManager
 
         public static void InitConfig()
         {
-            Main_Menu_Toggle = Instance.Config.Bind(new ConfigDefinition(CTG, "Main Menu Toggle"),
+            Main_Menu_Toggle = Instance.Config.Bind(new ConfigDefinition(CTG, I18n.T("MainMenuToggle")),
                 KeyCode.F5,
-                new ConfigDescription("The toggle for the Config Manager menu"));
+                new ConfigDescription(I18n.T("MainMenuToggleDesc")));
             Main_Menu_Toggle.SettingChanged += Main_Menu_Toggle_SettingChanged;
 
-            Auto_Show_Main_Menu = Instance.Config.Bind(new ConfigDefinition(CTG, "Auto-show Main Menu"),
-                true, new ConfigDescription("Automatically show the main menu after the game starts."));
+            Auto_Show_Main_Menu = Instance.Config.Bind(new ConfigDefinition(CTG, I18n.T("AutoShowMainMenu")),
+                true, new ConfigDescription(I18n.T("AutoShowMainMenuDesc")));
 
-            Auto_Save_Configs = Instance.Config.Bind(new ConfigDefinition(CTG, "Auto-save settings"),
+            Auto_Save_Configs = Instance.Config.Bind(new ConfigDefinition(CTG, I18n.T("AutoSave")),
                 true,
-                new ConfigDescription("Automatically save settings after changing them? This will mean the undo feature will be unavailable.", null, "Advanced"));
+                new ConfigDescription(I18n.T("AutoSaveDesc"), null, "Advanced"));
             Auto_Save_Configs.SettingChanged += Auto_Save_Configs_SettingChanged;
 
-            Display_Config_Type = Instance.Config.Bind(new ConfigDefinition(CTG, "Display Config Type"),
+            Display_Config_Type = Instance.Config.Bind(new ConfigDefinition(CTG, I18n.T("DisplayConfigType")),
                 false,
-                new ConfigDescription("Show configuration type in the setting title bar.", null, "Advanced"));
+                new ConfigDescription(I18n.T("DisplayConfigTypeDesc"), null, "Advanced"));
             Display_Config_Type.SettingChanged += Display_Config_Type_SettingChanged;
 
             //UI_Scale = ConfigManagerPlugin.Instance.Config.Bind(new ConfigDefinition(CTG, "UI Scale"),
@@ -148,11 +148,11 @@ namespace ConfigManager
             //
             //UI_Scale.SettingChanged += UiScale_SettingChanged;
 
-            Startup_Delay = Instance.Config.Bind(CTG, "Startup Delay", 1f,
-                new ConfigDescription("Delays the core startup process. Adjust it if you experience issues.", null, "Advanced"));
+            Startup_Delay = Instance.Config.Bind(CTG, I18n.T("StartupDelay"), 1f,
+                new ConfigDescription(I18n.T("StartupDelayDesc"), null, "Advanced"));
 
-            Disable_EventSystem_Override = Instance.Config.Bind(CTG, "Disable EventSystem Override", false,
-                new ConfigDescription("Disables the overriding of the EventSystem from the game, if you experience issues with UI Input.", null, "Advanced"));
+            Disable_EventSystem_Override = Instance.Config.Bind(CTG, I18n.T("DisableEventSystemOverride"), false,
+                new ConfigDescription(I18n.T("DisableEventSystemOverrideDesc"), null, "Advanced"));
             Disable_EventSystem_Override.SettingChanged += Disable_EventSystem_Override_SettingChanged;
 
             // InitTest();
