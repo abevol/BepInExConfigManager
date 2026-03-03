@@ -134,6 +134,8 @@ namespace ConfigManager.UI.InteractiveValues
                 dropdown.options.Add(opt);
                 dropdownOptions.Add(kvp.Value, opt);
             }
+
+            // dropdown.EnableClickOutsideToClose();
         }
     }
 }
