@@ -1,0 +1,5 @@
+<Project>
+  <PropertyGroup>
+    <Configuration Condition="'$(Configuration)' == ''">Release_IL2CPP_CoreCLR</Configuration>
+  </PropertyGroup>
+</Project>
