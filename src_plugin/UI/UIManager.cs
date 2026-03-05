@@ -172,7 +172,8 @@ namespace ConfigManager.UI
         {
             try
             {
-                configsToCached[sender as ConfigEntryBase].OnSettingChanged(sender, e);
+                if (sender is ConfigEntryBase entry && configsToCached.TryGetValue(entry, out var cached))
+                    cached.OnSettingChanged(sender, e);
             }
             catch (Exception ex)
             {
