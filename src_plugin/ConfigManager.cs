@@ -118,7 +118,10 @@ namespace ConfigManager
             if (UIManager.uiBase == null)
                 return;
 
-            if (InputManager.GetKeyDown(Main_Menu_Toggle.Value))
+            if (InputManager.GetKeyDown(Main_Menu_Toggle.Value)
+                && !InputManager.GetKey(KeyCode.LeftControl) && !InputManager.GetKey(KeyCode.RightControl)
+                && !InputManager.GetKey(KeyCode.LeftShift) && !InputManager.GetKey(KeyCode.RightShift)
+                && !InputManager.GetKey(KeyCode.LeftAlt) && !InputManager.GetKey(KeyCode.RightAlt))
                 UIManager.ShowMenu = !UIManager.ShowMenu;
         }
 
